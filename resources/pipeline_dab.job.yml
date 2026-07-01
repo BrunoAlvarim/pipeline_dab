@@ -1,0 +1,57 @@
+# A sample job for pipeline_dab.
+
+resources:
+  jobs:
+    sample_job:
+      name: pipeline_dab
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+      # parameters:
+      #   - name: catalog
+      #     default: ${var.catalog}
+      #   - name: schema
+      #     default: ${var.schema}
+
+      tasks:
+        - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: create_workspace
+            # parameters:
+            #   - "--catalog"
+            #   - "${var.catalog}"
+            #   - "--schema"
+            #   - "${var.schema}"
+          environment_key: default
+
+        - task_key: insert_pessoas
+          depends_on:
+            - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: insert_pessoas
+            # parameters:
+            #   - "--catalog"
+            #   - "${var.catalog}"
+            #   - "--schema"
+            #   - "${var.schema}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              # By default we just include the .whl file generated for the pipeline_dab package.
+              # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
+              # for more information on how to add other libraries.
+              - ../dist/*.whl
