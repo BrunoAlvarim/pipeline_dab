@@ -6,8 +6,11 @@ logging = get_logging("bronze/create_workspace")
 
 spark = get_spark()
 
+
+
 def main():
     try:
+        logging.info("teste cicd")
         logging.info("criando ambiente")
         spark.sql("create catalog if not exists demo_dab")
         spark.sql("create schema if not exists demo_dab.bronze")
