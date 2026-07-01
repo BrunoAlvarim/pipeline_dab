@@ -26,11 +26,6 @@ resources:
           python_wheel_task:
             package_name: pipeline_dab
             entry_point: create_workspace
-            # parameters:
-            #   - "--catalog"
-            #   - "${var.catalog}"
-            #   - "--schema"
-            #   - "${var.schema}"
           environment_key: default
 
         - task_key: insert_pessoas
@@ -39,11 +34,14 @@ resources:
           python_wheel_task:
             package_name: pipeline_dab
             entry_point: insert_pessoas
-            # parameters:
-            #   - "--catalog"
-            #   - "${var.catalog}"
-            #   - "--schema"
-            #   - "${var.schema}"
+          environment_key: default
+          
+        - task_key: insert_pessoas_test
+          depends_on:
+            - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: insert_pessoas_test
           environment_key: default
 
       environments:

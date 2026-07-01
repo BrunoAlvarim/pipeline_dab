@@ -30,6 +30,8 @@ packages = ["src/bronze", "src/func"]
 create_workspace = "bronze.create_workspace:main"
 insert_pessoas = "bronze.insert_pessoas:main"
 
+insert_pessoas_test = "bronze.insert_pessoas_test:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
