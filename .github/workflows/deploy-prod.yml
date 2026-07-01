@@ -1,0 +1,50 @@
+name: Deploy DAB - prod
+
+# Runs only on direct push to the main branch (e.g. after merging dev -> main).
+# It does NOT run on pull requests or on any other branch.
+on:
+  push:
+    branches:
+      - main
+
+# Prevent overlapping deploys to the same target.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy-prod:
+    name: validate & deploy (target prod)
+    runs-on: ubuntu-latest
+
+    # Uses the "prod" GitHub Environment so DATABRICKS_HOST / DATABRICKS_TOKEN
+    # resolve to the prod workspace credentials.
+    environment: prod
+
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Python is required because the bundle builds a wheel (uv build --wheel)
+      # during "bundle deploy".
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      # If validate fails, the job stops here and deploy never runs.
+      - name: Validate bundle (prod)
+        run: databricks bundle validate --target prod
+
+      - name: Deploy bundle (prod)
+        run: databricks bundle deploy --target prod

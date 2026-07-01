@@ -9,3 +9,73 @@ scratch/**
 **/explorations/**
 **/!explorations/README.md
 .env
+
+>Prompt para Claude Code: Pipeline CI/CD para Databricks Asset Bundle
+Contexto do projeto:
+Estou configurando um pipeline de CI/CD para um projeto Databricks Asset Bundle. O projeto já funciona corretamente no ambiente de desenvolvimento (deploy manual validado). Preciso automatizar esse fluxo via GitHub Actions.
+Estrutura de branches:
+
+feature/<nome> → branch de desenvolvimento individual
+dev → branch de integração/ambiente de desenvolvimento
+main → branch de produção
+
+Arquivos relevantes do projeto:
+
+resources/*.job.yml → definição dos jobs do Databricks
+databricks.yml → configuração principal do bundle (targets dev e prod já configurados)
+
+
+Fluxo desejado:
+Etapa 1 — Desenvolvimento local (sem automação):
+O desenvolvedor trabalha na branch feature/<nome>, edita os arquivos resources/*.job.yml e databricks.yml, testa a lógica localmente. Nenhuma ação do Databricks deve ser executada automaticamente no VSCode ou no push da feature branch. O desenvolvedor apenas faz push da branch normalmente.
+Etapa 2 — PR de feature/<nome> → dev:
+Ao abrir o Pull Request para dev, nenhuma ação automatizada é necessária (apenas revisão de código humana). Ao realizar o merge na branch dev, o GitHub Actions deve disparar automaticamente o seguinte fluxo:
+
+Executar databricks bundle validate --target dev
+
+Se falhar: o pipeline do GitHub Actions deve falhar com a mensagem de erro visível nos logs. O deploy não deve ser executado.
+Se passar: executar databricks bundle deploy --target dev
+
+Se falhar: o pipeline do GitHub Actions deve falhar com a mensagem de erro visível nos logs.
+Se passar: pipeline conclui com sucesso.
+
+
+
+
+
+Etapa 3 — PR de dev → main:
+Seguindo a mesma lógica da Etapa 2, mas usando --target prod:
+
+Executar databricks bundle validate --target prod
+
+Se falhar: pipeline falha, deploy não é executado.
+Se passar: executar databricks bundle deploy --target prod
+
+Se falhar: pipeline falha.
+Se passar: pipeline conclui com sucesso.
+
+
+
+
+
+
+Requisitos de implementação:
+
+Criar os arquivos de workflow do GitHub Actions (.github/workflows/) necessários para cobrir os dois fluxos acima (merge em dev e merge em main).
+Usar as seguintes GitHub Secrets para autenticação com o Databricks (assumir que já estão cadastradas no repositório):
+
+DATABRICKS_HOST — URL do workspace Databricks
+DATABRICKS_TOKEN — token de acesso pessoal (PAT)
+
+
+O workflow deve instalar a Databricks CLI como parte do setup (usar a versão mais recente estável disponível via script oficial da Databricks ou via pip, o que for mais confiável no ambiente do GitHub Actions).
+Os workflows devem ser disparados somente no evento de push na branch alvo (não em pull requests, não em outras branches).
+Não criar nenhuma automação para a branch feature/<nome>.
+Se houver qualquer configuração necessária no databricks.yml para suportar os targets dev e prod que ainda não esteja presente, indicar o que precisa ser adicionado/ajustado.
+
+
+O que deve ser entregue:
+
+Arquivo .github/workflows/deploy-dev.yml (dispara no push em dev)
+Arquivo .github/workflows/deploy-prod.yml (dispara no push em main)
+Qualquer ajuste necessário no databricks.yml para suportar os dois targets
