@@ -17,7 +17,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/bronze", "src/func"]
+packages = ["src/bronze", "src/func", "src/silver"]
 
 [project.scripts]
 
