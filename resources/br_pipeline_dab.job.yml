@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    br_pipeline_dab_job:
+      name: br_pipeline_dab
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+      # parameters:
+      #   - name: catalog
+      #     default: ${var.catalog}
+      #   - name: schema
+      #     default: ${var.schema}
+
+      tasks:
+        - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: create_workspace_bronze
+          environment_key: default
+
+        - task_key: insert_pessoas
+          depends_on:
+            - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: insert_pessoas
+          environment_key: default
+          
+        - task_key: transform_itens
+          depends_on:
+            - task_key: create_workspace
+          python_wheel_task:
+            package_name: pipeline_dab
+            entry_point: transform_itens
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl

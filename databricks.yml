@@ -35,9 +35,15 @@ targets:
     workspace:
       host: https://adb-7405610906642851.11.azuredatabricks.net
       root_path: /Workspace/.bundle/${bundle.name}/${bundle.target}
-    # variables:
-    #   catalog: demo_dab
-    #   schema: prod
+
+    resources: #agenda o job apenas em ambiente de produção
+      jobs:
+        pipeline_dab_job:
+          schedule:
+            quartz_cron_expression: "0 0 12 * * ?"
+            timezone_id: "America/Sao_Paulo"
+            pause_status: UNPAUSED
+
     permissions:
       - user_name: brunoalvarim1@gmail.com
         level: CAN_MANAGE

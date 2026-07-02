@@ -1,7 +1,8 @@
 from func.get_logging import get_logging
 from func.config import get_spark
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType,TimestampType
 import random
+from datetime import datetime
 
 logging = get_logging("bronze/insert_pessoas")
 
@@ -25,14 +26,17 @@ def main():
         client_id = random.randint(1, 10)
         nome = random.choice(SAMPLE_NAMES)
         idade = random.randint(18, 80)
+        data_carga = datetime.now()
+
 
         schema = StructType([
             StructField("client_id", IntegerType(), False),
             StructField("nome", StringType(), False),
-            StructField("idade", IntegerType(), False)
+            StructField("idade", IntegerType(), False),
+            StructField("data_carga", TimestampType(), False)
         ])
 
-        data = [(client_id, nome, idade)]
+        data = [(client_id, nome, idade,data_carga)]
         df = spark.createDataFrame(data, schema=schema)
 
         logging.info(f"Inserting record: client_id={client_id}, nome={nome}, idade={idade}")
