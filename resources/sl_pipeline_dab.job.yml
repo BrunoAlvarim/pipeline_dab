@@ -1,15 +1,7 @@
-# A sample job for pipeline_dab.
-
 resources:
   jobs:
     sample_job:
-      name: pipeline_dab
-
-      trigger:
-        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
-        periodic:
-          interval: 1
-          unit: DAYS
+      name: sl_pipeline_dab
 
       #email_notifications:
       #  on_failure:
@@ -25,23 +17,23 @@ resources:
         - task_key: create_workspace
           python_wheel_task:
             package_name: pipeline_dab
-            entry_point: create_workspace
+            entry_point: create_workspace_silver
           environment_key: default
 
-        - task_key: insert_pessoas
+        - task_key: merge_pessoas
           depends_on:
             - task_key: create_workspace
           python_wheel_task:
             package_name: pipeline_dab
-            entry_point: insert_pessoas
+            entry_point: transform_pessoas
           environment_key: default
           
-        - task_key: insert_pessoas_test
+        - task_key: merge_itens
           depends_on:
             - task_key: create_workspace
           python_wheel_task:
             package_name: pipeline_dab
-            entry_point: insert_pessoas_test
+            entry_point: transform_itens
           environment_key: default
 
       environments:
@@ -49,7 +41,4 @@ resources:
           spec:
             environment_version: "4"
             dependencies:
-              # By default we just include the .whl file generated for the pipeline_dab package.
-              # See https://docs.databricks.com/dev-tools/bundles/library-dependencies.html
-              # for more information on how to add other libraries.
               - ../dist/*.whl
