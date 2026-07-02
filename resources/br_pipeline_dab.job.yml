@@ -28,12 +28,12 @@ resources:
             entry_point: insert_pessoas
           environment_key: default
           
-        - task_key: insert_pessoas_test
+        - task_key: transform_itens
           depends_on:
             - task_key: create_workspace
           python_wheel_task:
             package_name: pipeline_dab
-            entry_point: insert_pessoas_test
+            entry_point: transform_itens
           environment_key: default
 
       environments:
