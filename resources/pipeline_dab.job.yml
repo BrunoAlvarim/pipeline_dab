@@ -1,0 +1,24 @@
+resources:
+  jobs:
+    pipeline_dab_job:
+      name: pipeline_dab
+
+      schedule:
+        quartz_cron_expression: "0 0 12 * * ?"
+        timezone_id: "America/Sao_Paulo"
+        pause_status: UNPAUSED
+      
+      email_notifications:
+        on_failure:
+          - brunoalvarim1@gmail.com
+
+      tasks:
+        - task_key: run_bronze
+          run_job_task:
+            job_id: ${resources.jobs.br_pipeline_dab_job.id}
+
+        - task_key: run_silver
+          depends_on:
+            - task_key: run_bronze
+          run_job_task:
+            job_id: ${resources.jobs.sl_pipeline_dab_job.id}
